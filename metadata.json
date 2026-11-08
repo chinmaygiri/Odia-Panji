@@ -1,0 +1,6 @@
+{
+  "name": "Odia Panchang",
+  "description": "An authentic Odia Panchang & Panji calendar system featuring daily tithi, nakshatra, rashi horoscope, festival push notifications, and detailed cultural rituals of Odisha with offline support.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
