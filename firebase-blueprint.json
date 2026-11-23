@@ -1,0 +1,553 @@
+{
+  "entities": {
+    "PanchangDay": {
+      "title": "PanchangDay",
+      "description": "Daily Odia Panchang and astronomical record stored in the database for a specific Gregorian date (YYYY-MM-DD).",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "maxLength": 10,
+          "description": "Gregorian date in YYYY-MM-DD format."
+        },
+        "dayOfWeekEng": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Day of week in English."
+        },
+        "dayOfWeekOdia": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Day of week in Odia."
+        },
+        "solarDateOdia": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Odia solar date string."
+        },
+        "solarMonthOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Odia solar month name."
+        },
+        "solarDay": {
+          "type": "integer",
+          "description": "Solar day number (1-32)."
+        },
+        "lunarMonthOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Odia lunar month name."
+        },
+        "pakshaOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Lunar fortnight (Shukla or Krishna Paksha) in Odia."
+        },
+        "tithiOdia": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Tithi name in Odia."
+        },
+        "tithiEnd": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "End time of the Tithi in Odia."
+        },
+        "nakshatraOdia": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Nakshatra name in Odia."
+        },
+        "nakshatraEnd": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "End time of the Nakshatra in Odia."
+        },
+        "rashiOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Moon sign (Rashi) in Odia."
+        },
+        "rashiEnd": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "End time of the Rashi in Odia."
+        },
+        "sunrise": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Sunrise time in English."
+        },
+        "sunset": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Sunset time in English."
+        },
+        "sunriseOdia": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Sunrise time in Odia numerals."
+        },
+        "sunsetOdia": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Sunset time in Odia numerals."
+        },
+        "dayLength": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Total solar day length."
+        },
+        "yoginiStatus": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Yogini position and travel guidance."
+        },
+        "tarashuddhi": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Star compatibility details."
+        },
+        "chandrashuddhi": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Moon sign compatibility details."
+        },
+        "ghatachandra": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Inauspicious moon transit details."
+        },
+        "mrutaByakti": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Death dosha and ritual notes."
+        },
+        "jataSisura": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Newborn astrological details."
+        },
+        "rahukala": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Rahukala inauspicious time."
+        },
+        "kalabela": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Kalabela inauspicious time."
+        },
+        "barabela": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Barabela inauspicious time."
+        },
+        "amrutaBela": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Amruta Bela auspicious time."
+        },
+        "mahendraBela": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Mahendra Bela auspicious time."
+        },
+        "nisiddhaKhadya": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Forbidden food for the Tithi."
+        },
+        "subhaKarma": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Auspicious activities for the day."
+        },
+        "mishra": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Miscellaneous Panji notes."
+        },
+        "isPublic": {
+          "type": "boolean",
+          "description": "Whether this calendar record is publicly readable."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the user who created or updated the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "date",
+        "dayOfWeekEng",
+        "dayOfWeekOdia",
+        "solarDateOdia",
+        "solarMonthOdia",
+        "solarDay",
+        "lunarMonthOdia",
+        "pakshaOdia",
+        "tithiOdia",
+        "tithiEnd",
+        "nakshatraOdia",
+        "nakshatraEnd",
+        "rashiOdia",
+        "rashiEnd",
+        "sunrise",
+        "sunset",
+        "sunriseOdia",
+        "sunsetOdia",
+        "dayLength",
+        "yoginiStatus",
+        "tarashuddhi",
+        "chandrashuddhi",
+        "ghatachandra",
+        "mrutaByakti",
+        "jataSisura",
+        "rahukala",
+        "kalabela",
+        "barabela",
+        "amrutaBela",
+        "mahendraBela",
+        "nisiddhaKhadya",
+        "subhaKarma",
+        "mishra",
+        "isPublic",
+        "updatedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "FestivalRecord": {
+      "title": "FestivalRecord",
+      "description": "Odia festival and celebration record stored in the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "maxLength": 128,
+          "description": "Unique festival identifier."
+        },
+        "nameOdia": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Festival name in Odia."
+        },
+        "nameEng": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Festival name in English."
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "maxLength": 10,
+          "description": "Festival Gregorian date in YYYY-MM-DD format."
+        },
+        "monthOdia": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Odia month of the festival."
+        },
+        "tithi": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Tithi on which the festival is observed."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Detailed cultural description in Odia."
+        },
+        "rituals": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Newline-delimited list of rituals in Odia."
+        },
+        "pitha": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Traditional Odia Pitha or Prasad prepared."
+        },
+        "significance": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Cultural significance in Odia."
+        },
+        "isPublic": {
+          "type": "boolean",
+          "description": "Whether this festival record is publicly readable."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the user who created or updated the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "id",
+        "nameOdia",
+        "nameEng",
+        "date",
+        "monthOdia",
+        "tithi",
+        "description",
+        "rituals",
+        "pitha",
+        "significance",
+        "isPublic",
+        "updatedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "RashifalRecord": {
+      "title": "RashifalRecord",
+      "description": "Odia zodiac horoscope (Rashifal) record stored in the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "maxLength": 128,
+          "description": "Rashi identifier (e.g. aries, taurus)."
+        },
+        "nameOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Rashi name in Odia."
+        },
+        "nameEng": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Rashi name in English."
+        },
+        "icon": {
+          "type": "string",
+          "maxLength": 16,
+          "description": "Zodiac symbol icon."
+        },
+        "prediction": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Rashifal prediction text in Odia."
+        },
+        "color": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Hex color accent."
+        },
+        "luckyNumber": {
+          "type": "integer",
+          "description": "Lucky number."
+        },
+        "luckyColor": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Lucky color in Odia/English."
+        },
+        "isPublic": {
+          "type": "boolean",
+          "description": "Whether this Rashifal record is publicly readable."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the user who created or updated the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "id",
+        "nameOdia",
+        "nameEng",
+        "icon",
+        "prediction",
+        "color",
+        "luckyNumber",
+        "luckyColor",
+        "isPublic",
+        "updatedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MonthMappingRecord": {
+      "title": "MonthMappingRecord",
+      "description": "Odia solar/lunar month mapping to Gregorian calendar month stored in the database.",
+      "type": "object",
+      "properties": {
+        "monthIndex": {
+          "type": "integer",
+          "description": "Gregorian month index 0-11."
+        },
+        "gregorianMonthEng": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Gregorian month name in English."
+        },
+        "gregorianMonthOdia": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Gregorian month name in Odia."
+        },
+        "firstPartOdia": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "First Odia month part."
+        },
+        "firstPartEndDateOdia": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "End date of first Odia month part."
+        },
+        "firstPartEndDay": {
+          "type": "integer",
+          "description": "Day number when first part ends."
+        },
+        "sankrantiOdia": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Sankranti name in Odia."
+        },
+        "sankrantiDateOdia": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Sankranti date in Odia."
+        },
+        "secondPartOdia": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Second Odia month part."
+        },
+        "secondPartStartDateOdia": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Start date of second Odia month part."
+        },
+        "secondPartStartDay": {
+          "type": "integer",
+          "description": "Day number when second part starts."
+        },
+        "traditionalPanjiPeriod": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Traditional Panji period string in Odia."
+        },
+        "solarTransitionOdia": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Solar sign transition in Odia."
+        },
+        "lunarTransitionOdia": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Lunar month transition in Odia."
+        },
+        "detailDescriptionOdia": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "Detailed description of the month transition in Odia."
+        },
+        "isPublic": {
+          "type": "boolean",
+          "description": "Whether this month mapping record is publicly readable."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the user who created or updated the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "monthIndex",
+        "gregorianMonthEng",
+        "gregorianMonthOdia",
+        "firstPartOdia",
+        "firstPartEndDateOdia",
+        "firstPartEndDay",
+        "sankrantiOdia",
+        "sankrantiDateOdia",
+        "secondPartOdia",
+        "secondPartStartDateOdia",
+        "secondPartStartDay",
+        "traditionalPanjiPeriod",
+        "solarTransitionOdia",
+        "lunarTransitionOdia",
+        "detailDescriptionOdia",
+        "isPublic",
+        "updatedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/panchangDays/{dateId}": {
+      "schema": {
+        "$ref": "#/entities/PanchangDay"
+      },
+      "description": "Daily Odia Panchang records keyed by YYYY-MM-DD date string."
+    },
+    "/festivals/{festivalId}": {
+      "schema": {
+        "$ref": "#/entities/FestivalRecord"
+      },
+      "description": "Odia festival records keyed by festival ID."
+    },
+    "/rashifals/{rashiId}": {
+      "schema": {
+        "$ref": "#/entities/RashifalRecord"
+      },
+      "description": "Odia zodiac Rashifal records keyed by Rashi ID."
+    },
+    "/monthMappings/{monthId}": {
+      "schema": {
+        "$ref": "#/entities/MonthMappingRecord"
+      },
+      "description": "Odia month mapping records keyed by month index (0-11)."
+    }
+  }
+}

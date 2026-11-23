@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { rashifalData, RashiRashifal } from "../data/panchangData";
 import { Search, Sparkles, Star } from "lucide-react";
 
-export default function RashifalView() {
+interface RashifalViewProps {
+  rashifals?: RashiRashifal[];
+}
+
+export default function RashifalView({ rashifals = rashifalData }: RashifalViewProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredRashi = rashifalData.filter(
+  const filteredRashi = rashifals.filter(
     (r) =>
       r.nameOdia.includes(searchTerm) ||
       r.nameEng.toLowerCase().includes(searchTerm.toLowerCase())

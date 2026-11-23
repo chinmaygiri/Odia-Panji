@@ -3,7 +3,11 @@ import { festivalsData, Festival } from "../data/panchangData";
 import { Calendar, ChevronRight, BookOpen, Sparkles, AlertCircle, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function FestivalDetails() {
+interface FestivalDetailsProps {
+  festivals?: Festival[];
+}
+
+export default function FestivalDetails({ festivals = festivalsData }: FestivalDetailsProps) {
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(null);
 
   return (
@@ -15,7 +19,7 @@ export default function FestivalDetails() {
 
       {/* Grid of Festivals */}
       <div className="grid grid-cols-1 gap-3.5">
-        {festivalsData.map((fest) => (
+        {festivals.map((fest) => (
           <button
             key={fest.id}
             id={`fest-btn-${fest.id}`}

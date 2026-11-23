@@ -1,0 +1,316 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable Hardened Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidDateId(id) {
+      return id is string && id.size() == 10 && id.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Validation Blueprint: PanchangDay
+    function isValidPanchangDay(data) {
+      return data.keys().hasAll([
+        'date', 'dayOfWeekEng', 'dayOfWeekOdia', 'solarDateOdia', 'solarMonthOdia',
+        'solarDay', 'lunarMonthOdia', 'pakshaOdia', 'tithiOdia', 'tithiEnd',
+        'nakshatraOdia', 'nakshatraEnd', 'rashiOdia', 'rashiEnd', 'sunrise',
+        'sunset', 'sunriseOdia', 'sunsetOdia', 'dayLength', 'yoginiStatus',
+        'tarashuddhi', 'chandrashuddhi', 'ghatachandra', 'mrutaByakti', 'jataSisura',
+        'rahukala', 'kalabela', 'barabela', 'amrutaBela', 'mahendraBela',
+        'nisiddhaKhadya', 'subhaKarma', 'mishra', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'date', 'dayOfWeekEng', 'dayOfWeekOdia', 'solarDateOdia', 'solarMonthOdia',
+        'solarDay', 'lunarMonthOdia', 'pakshaOdia', 'tithiOdia', 'tithiEnd',
+        'nakshatraOdia', 'nakshatraEnd', 'rashiOdia', 'rashiEnd', 'sunrise',
+        'sunset', 'sunriseOdia', 'sunsetOdia', 'dayLength', 'yoginiStatus',
+        'tarashuddhi', 'chandrashuddhi', 'ghatachandra', 'mrutaByakti', 'jataSisura',
+        'rahukala', 'kalabela', 'barabela', 'amrutaBela', 'mahendraBela',
+        'nisiddhaKhadya', 'subhaKarma', 'mishra', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.date is string && data.date.size() <= 10 && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
+      data.dayOfWeekEng is string && data.dayOfWeekEng.size() <= 20 &&
+      data.dayOfWeekOdia is string && data.dayOfWeekOdia.size() <= 30 &&
+      data.solarDateOdia is string && data.solarDateOdia.size() <= 50 &&
+      data.solarMonthOdia is string && data.solarMonthOdia.size() <= 40 &&
+      data.solarDay is int && data.solarDay >= 1 && data.solarDay <= 32 &&
+      data.lunarMonthOdia is string && data.lunarMonthOdia.size() <= 40 &&
+      data.pakshaOdia is string && data.pakshaOdia.size() <= 40 &&
+      data.tithiOdia is string && data.tithiOdia.size() <= 50 &&
+      data.tithiEnd is string && data.tithiEnd.size() <= 80 &&
+      data.nakshatraOdia is string && data.nakshatraOdia.size() <= 50 &&
+      data.nakshatraEnd is string && data.nakshatraEnd.size() <= 80 &&
+      data.rashiOdia is string && data.rashiOdia.size() <= 40 &&
+      data.rashiEnd is string && data.rashiEnd.size() <= 80 &&
+      data.sunrise is string && data.sunrise.size() <= 20 &&
+      data.sunset is string && data.sunset.size() <= 20 &&
+      data.sunriseOdia is string && data.sunriseOdia.size() <= 20 &&
+      data.sunsetOdia is string && data.sunsetOdia.size() <= 20 &&
+      data.dayLength is string && data.dayLength.size() <= 20 &&
+      data.yoginiStatus is string && data.yoginiStatus.size() <= 300 &&
+      data.tarashuddhi is string && data.tarashuddhi.size() <= 400 &&
+      data.chandrashuddhi is string && data.chandrashuddhi.size() <= 300 &&
+      data.ghatachandra is string && data.ghatachandra.size() <= 300 &&
+      data.mrutaByakti is string && data.mrutaByakti.size() <= 300 &&
+      data.jataSisura is string && data.jataSisura.size() <= 300 &&
+      data.rahukala is string && data.rahukala.size() <= 100 &&
+      data.kalabela is string && data.kalabela.size() <= 100 &&
+      data.barabela is string && data.barabela.size() <= 100 &&
+      data.amrutaBela is string && data.amrutaBela.size() <= 150 &&
+      data.mahendraBela is string && data.mahendraBela.size() <= 150 &&
+      data.nisiddhaKhadya is string && data.nisiddhaKhadya.size() <= 300 &&
+      data.subhaKarma is string && data.subhaKarma.size() <= 300 &&
+      data.mishra is string && data.mishra.size() <= 300 &&
+      data.isPublic is bool &&
+      data.updatedByUid is string && data.updatedByUid.size() <= 128 && data.updatedByUid == request.auth.uid &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: FestivalRecord
+    function isValidFestivalRecord(data) {
+      return data.keys().hasAll([
+        'id', 'nameOdia', 'nameEng', 'date', 'monthOdia', 'tithi',
+        'description', 'rituals', 'pitha', 'significance', 'isPublic',
+        'updatedByUid', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'id', 'nameOdia', 'nameEng', 'date', 'monthOdia', 'tithi',
+        'description', 'rituals', 'pitha', 'significance', 'isPublic',
+        'updatedByUid', 'createdAt', 'updatedAt'
+      ]) &&
+      data.id is string && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.nameOdia is string && data.nameOdia.size() <= 120 &&
+      data.nameEng is string && data.nameEng.size() <= 120 &&
+      data.date is string && data.date.size() <= 10 && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
+      data.monthOdia is string && data.monthOdia.size() <= 50 &&
+      data.tithi is string && data.tithi.size() <= 80 &&
+      data.description is string && data.description.size() <= 1000 &&
+      data.rituals is string && data.rituals.size() <= 1000 &&
+      data.pitha is string && data.pitha.size() <= 200 &&
+      data.significance is string && data.significance.size() <= 400 &&
+      data.isPublic is bool &&
+      data.updatedByUid is string && data.updatedByUid.size() <= 128 && data.updatedByUid == request.auth.uid &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: RashifalRecord
+    function isValidRashifalRecord(data) {
+      return data.keys().hasAll([
+        'id', 'nameOdia', 'nameEng', 'icon', 'prediction', 'color',
+        'luckyNumber', 'luckyColor', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'id', 'nameOdia', 'nameEng', 'icon', 'prediction', 'color',
+        'luckyNumber', 'luckyColor', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.id is string && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.nameOdia is string && data.nameOdia.size() <= 40 &&
+      data.nameEng is string && data.nameEng.size() <= 40 &&
+      data.icon is string && data.icon.size() <= 16 &&
+      data.prediction is string && data.prediction.size() <= 1000 &&
+      data.color is string && data.color.size() <= 20 &&
+      data.luckyNumber is int && data.luckyNumber >= 1 && data.luckyNumber <= 99 &&
+      data.luckyColor is string && data.luckyColor.size() <= 50 &&
+      data.isPublic is bool &&
+      data.updatedByUid is string && data.updatedByUid.size() <= 128 && data.updatedByUid == request.auth.uid &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: MonthMappingRecord
+    function isValidMonthMappingRecord(data) {
+      return data.keys().hasAll([
+        'monthIndex', 'gregorianMonthEng', 'gregorianMonthOdia',
+        'firstPartOdia', 'firstPartEndDateOdia', 'firstPartEndDay',
+        'sankrantiOdia', 'sankrantiDateOdia', 'secondPartOdia',
+        'secondPartStartDateOdia', 'secondPartStartDay',
+        'traditionalPanjiPeriod', 'solarTransitionOdia', 'lunarTransitionOdia',
+        'detailDescriptionOdia', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'monthIndex', 'gregorianMonthEng', 'gregorianMonthOdia',
+        'firstPartOdia', 'firstPartEndDateOdia', 'firstPartEndDay',
+        'sankrantiOdia', 'sankrantiDateOdia', 'secondPartOdia',
+        'secondPartStartDateOdia', 'secondPartStartDay',
+        'traditionalPanjiPeriod', 'solarTransitionOdia', 'lunarTransitionOdia',
+        'detailDescriptionOdia', 'isPublic', 'updatedByUid',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.monthIndex is int && data.monthIndex >= 0 && data.monthIndex <= 11 &&
+      data.gregorianMonthEng is string && data.gregorianMonthEng.size() <= 30 &&
+      data.gregorianMonthOdia is string && data.gregorianMonthOdia.size() <= 40 &&
+      data.firstPartOdia is string && data.firstPartOdia.size() <= 60 &&
+      data.firstPartEndDateOdia is string && data.firstPartEndDateOdia.size() <= 60 &&
+      data.firstPartEndDay is int && data.firstPartEndDay >= 1 && data.firstPartEndDay <= 31 &&
+      data.sankrantiOdia is string && data.sankrantiOdia.size() <= 80 &&
+      data.sankrantiDateOdia is string && data.sankrantiDateOdia.size() <= 50 &&
+      data.secondPartOdia is string && data.secondPartOdia.size() <= 60 &&
+      data.secondPartStartDateOdia is string && data.secondPartStartDateOdia.size() <= 60 &&
+      data.secondPartStartDay is int && data.secondPartStartDay >= 1 && data.secondPartStartDay <= 31 &&
+      data.traditionalPanjiPeriod is string && data.traditionalPanjiPeriod.size() <= 150 &&
+      data.solarTransitionOdia is string && data.solarTransitionOdia.size() <= 100 &&
+      data.lunarTransitionOdia is string && data.lunarTransitionOdia.size() <= 100 &&
+      data.detailDescriptionOdia is string && data.detailDescriptionOdia.size() <= 400 &&
+      data.isPublic is bool &&
+      data.updatedByUid is string && data.updatedByUid.size() <= 128 && data.updatedByUid == request.auth.uid &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Collection 1: /panchangDays/{dateId}
+    match /panchangDays/{dateId} {
+      allow get: if isValidDateId(dateId) && (existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid));
+      allow list: if existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid);
+
+      allow create: if isVerifiedUser() &&
+        isValidDateId(dateId) &&
+        isValidPanchangDay(incoming()) &&
+        incoming().date == dateId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidDateId(dateId) &&
+        isValidPanchangDay(incoming()) &&
+        incoming().date == existing().date &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        existing().updatedByUid == request.auth.uid &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'dayOfWeekEng', 'dayOfWeekOdia', 'solarDateOdia', 'solarMonthOdia',
+          'solarDay', 'lunarMonthOdia', 'pakshaOdia', 'tithiOdia', 'tithiEnd',
+          'nakshatraOdia', 'nakshatraEnd', 'rashiOdia', 'rashiEnd', 'sunrise',
+          'sunset', 'sunriseOdia', 'sunsetOdia', 'dayLength', 'yoginiStatus',
+          'tarashuddhi', 'chandrashuddhi', 'ghatachandra', 'mrutaByakti', 'jataSisura',
+          'rahukala', 'kalabela', 'barabela', 'amrutaBela', 'mahendraBela',
+          'nisiddhaKhadya', 'subhaKarma', 'mishra', 'isPublic', 'updatedByUid', 'updatedAt'
+        ]);
+
+      allow delete: if isVerifiedUser() &&
+        isValidDateId(dateId) &&
+        existing().updatedByUid == request.auth.uid;
+    }
+
+    // Collection 2: /festivals/{festivalId}
+    match /festivals/{festivalId} {
+      allow get: if isValidId(festivalId) && (existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid));
+      allow list: if existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid);
+
+      allow create: if isVerifiedUser() &&
+        isValidId(festivalId) &&
+        isValidFestivalRecord(incoming()) &&
+        incoming().id == festivalId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidId(festivalId) &&
+        isValidFestivalRecord(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        existing().updatedByUid == request.auth.uid &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'nameOdia', 'nameEng', 'date', 'monthOdia', 'tithi',
+          'description', 'rituals', 'pitha', 'significance',
+          'isPublic', 'updatedByUid', 'updatedAt'
+        ]);
+
+      allow delete: if isVerifiedUser() &&
+        isValidId(festivalId) &&
+        existing().updatedByUid == request.auth.uid;
+    }
+
+    // Collection 3: /rashifals/{rashiId}
+    match /rashifals/{rashiId} {
+      allow get: if isValidId(rashiId) && (existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid));
+      allow list: if existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid);
+
+      allow create: if isVerifiedUser() &&
+        isValidId(rashiId) &&
+        isValidRashifalRecord(incoming()) &&
+        incoming().id == rashiId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidId(rashiId) &&
+        isValidRashifalRecord(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        existing().updatedByUid == request.auth.uid &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'nameOdia', 'nameEng', 'icon', 'prediction', 'color',
+          'luckyNumber', 'luckyColor', 'isPublic', 'updatedByUid', 'updatedAt'
+        ]);
+
+      allow delete: if isVerifiedUser() &&
+        isValidId(rashiId) &&
+        existing().updatedByUid == request.auth.uid;
+    }
+
+    // Collection 4: /monthMappings/{monthId}
+    match /monthMappings/{monthId} {
+      allow get: if isValidId(monthId) && (existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid));
+      allow list: if existing().isPublic == true || (isSignedIn() && existing().updatedByUid == request.auth.uid);
+
+      allow create: if isVerifiedUser() &&
+        isValidId(monthId) &&
+        isValidMonthMappingRecord(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidId(monthId) &&
+        isValidMonthMappingRecord(incoming()) &&
+        incoming().monthIndex == existing().monthIndex &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        existing().updatedByUid == request.auth.uid &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'gregorianMonthEng', 'gregorianMonthOdia', 'firstPartOdia',
+          'firstPartEndDateOdia', 'firstPartEndDay', 'sankrantiOdia',
+          'sankrantiDateOdia', 'secondPartOdia', 'secondPartStartDateOdia',
+          'secondPartStartDay', 'traditionalPanjiPeriod', 'solarTransitionOdia',
+          'lunarTransitionOdia', 'detailDescriptionOdia', 'isPublic',
+          'updatedByUid', 'updatedAt'
+        ]);
+
+      allow delete: if isVerifiedUser() &&
+        isValidId(monthId) &&
+        existing().updatedByUid == request.auth.uid;
+    }
+  }
+}

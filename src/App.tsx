@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import HeaderCard from "./components/HeaderCard";
 import OdiaMonthBanner from "./components/OdiaMonthBanner";
 import PanchangTabs from "./components/PanchangTabs";
@@ -6,34 +6,45 @@ import RashifalView from "./components/RashifalView";
 import FestivalDetails from "./components/FestivalDetails";
 import NotificationSettings from "./components/NotificationSettings";
 import AiAstroAssistant from "./components/AiAstroAssistant";
-import { 
-  getPanchangForDate, 
-  festivalsData, 
-  DayPanchang, 
-  getMoonPhaseInfo, 
-  MoonPhaseType 
+import {
+  getPanchangForDate,
+  festivalsData,
+  rashifalData,
+  DayPanchang,
+  Festival,
+  RashiRashifal,
+  getMoonPhaseInfo,
+  MoonPhaseType,
 } from "./data/panchangData";
-import { 
-  MoonPhaseGlyph, 
-  MoonPhaseLegend, 
-  MoonPhaseCard 
+import {
+  ODIA_MONTH_MAPPINGS,
+  OdiaMonthMapping,
+  getOdiaMonthMapping,
+} from "./data/odiaMonthMapping";
+import {
+  MoonPhaseGlyph,
+  MoonPhaseLegend,
+  MoonPhaseCard,
 } from "./components/MoonPhaseIndicator";
-import { 
-  Calendar as CalendarIcon, 
-  Sparkles, 
-  Bell, 
-  WifiOff, 
-  Menu, 
-  User, 
-  ChevronLeft, 
-  ChevronRight, 
-  BookOpen, 
-  Info,
+import {
+  fetchPanchangDayFromDb,
+  subscribeToFestivals,
+  subscribeToRashifals,
+  subscribeToMonthMappings,
+  subscribeToPanchangDays,
+} from "./services/panchangDatabaseService";
+import {
+  Calendar as CalendarIcon,
+  Sparkles,
+  Bell,
+  Menu,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
   CheckCircle2,
-  Heart,
-  Globe,
   Sun,
-  Moon
+  Moon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -59,7 +70,7 @@ const weekDaysOdia = ["ରବି", "ସୋମ", "ମଙ୍ଗଳ", "ବୁଧ", 
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"panchang" | "festivals" | "ai_assistant" | "notifications">("panchang");
-  
+
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("panchang-dark-mode");
@@ -93,7 +104,13 @@ export default function App() {
   const todayStr = getTodayStr();
 
   const [selectedDateStr, setSelectedDateStr] = useState<string>(todayStr);
-  const [panchang, setPanchang] = useState<DayPanchang>(getPanchangForDate(todayStr));
+  const [panchang, setPanchang] = useState<DayPanchang>(() => getPanchangForDate(todayStr));
+
+  // Database state for Festivals, Rashifals, Month Mappings, and Panchang Days
+  const [dbFestivals, setDbFestivals] = useState<Festival[]>(festivalsData);
+  const [dbRashifals, setDbRashifals] = useState<RashiRashifal[]>(rashifalData);
+  const [dbMonthMappings, setDbMonthMappings] = useState<OdiaMonthMapping[]>(ODIA_MONTH_MAPPINGS);
+  const [dbPanchangDaysMap, setDbPanchangDaysMap] = useState<Record<string, DayPanchang>>({});
 
   // Current calendar navigation month & year
   const [navDate, setNavDate] = useState<Date>(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -104,10 +121,45 @@ export default function App() {
   // Filter or spotlight moon phase in calendar
   const [moonPhaseFilter, setMoonPhaseFilter] = useState<MoonPhaseType | null>(null);
 
-  // Load selected date panchang
+  // Subscribe to database collections in background
   useEffect(() => {
-    setPanchang(getPanchangForDate(selectedDateStr));
-  }, [selectedDateStr]);
+    const unsubFest = subscribeToFestivals((list) => {
+      setDbFestivals(list);
+    });
+
+    const unsubRashi = subscribeToRashifals((list) => {
+      setDbRashifals(list);
+    });
+
+    const unsubMonths = subscribeToMonthMappings((list) => {
+      setDbMonthMappings(list);
+    });
+
+    const unsubDays = subscribeToPanchangDays((daysMap) => {
+      setDbPanchangDaysMap(daysMap);
+    });
+
+    return () => {
+      unsubFest();
+      unsubRashi();
+      unsubMonths();
+      unsubDays();
+    };
+  }, []);
+
+  // Load selected date panchang from the Database
+  const loadSelectedDateFromDb = useCallback(async (dateStr: string) => {
+    if (dbPanchangDaysMap[dateStr]) {
+      setPanchang(dbPanchangDaysMap[dateStr]);
+      return;
+    }
+    const result = await fetchPanchangDayFromDb(dateStr);
+    setPanchang(result.panchang);
+  }, [dbPanchangDaysMap]);
+
+  useEffect(() => {
+    loadSelectedDateFromDb(selectedDateStr);
+  }, [selectedDateStr, loadSelectedDateFromDb]);
 
   // Handle date change
   const handleDateSelect = (dateString: string) => {
@@ -131,7 +183,7 @@ export default function App() {
 
   // Create calendar grid items
   const calendarDays: { dateStr: string; dayNum: number; isCurrentMonth: boolean }[] = [];
-  
+
   // Padding for previous month
   const prevMonthDays = new Date(year, month, 0).getDate();
   for (let i = firstDayIndex - 1; i >= 0; i--) {
@@ -168,12 +220,14 @@ export default function App() {
     moonPhaseCounts[info.phase] = (moonPhaseCounts[info.phase] || 0) + 1;
   });
 
-  // Get festival for any day if any
+  // Get festival for any day from the database
   const getFestivalForDay = (dateStr: string) => {
-    return festivalsData.find((f) => f.date === dateStr);
+    return dbFestivals.find((f) => f.date === dateStr);
   };
 
   const selectedFestival = getFestivalForDay(selectedDateStr);
+  const activeMonthMapping =
+    dbMonthMappings.find((m) => m.monthIndex === month) || getOdiaMonthMapping(month);
 
   return (
     <div id="odia-panchang-app" className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center transition-colors duration-200">
@@ -233,10 +287,10 @@ export default function App() {
               transition={{ duration: 0.18 }}
               className="space-y-5"
             >
-              {/* Daily Header Card from Screenshot 1 & 2 */}
+              {/* Daily Header Card */}
               <HeaderCard panchang={panchang} />
 
-              {/* Integrated Calendar System Box from Screenshot 1 */}
+              {/* Integrated Calendar System Box */}
               <div className="bg-slate-200 dark:bg-slate-900/90 rounded-[32px] p-5 border border-slate-300/40 dark:border-slate-800/80 shadow-sm text-center transition-colors duration-200">
                 
                 {/* Month Name and navigation */}
@@ -258,10 +312,11 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Dynamic Odia Month Mapping Banner showing exact English calendar dates and Odia text */}
+                {/* Dynamic Odia Month Mapping Banner fetched from database */}
                 <OdiaMonthBanner
                   currentMonthIndex={month}
                   currentYear={year}
+                  monthMapping={activeMonthMapping}
                   onSelectMonth={(mIdx) => setNavDate(new Date(year, mIdx, 1))}
                 />
 
@@ -358,7 +413,7 @@ export default function App() {
                 />
               </div>
 
-              {/* Dynamic Holiday/Festival display below calendar matching screenshot 1 */}
+              {/* Dynamic Holiday/Festival display below calendar fetched from database */}
               <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-800/80 text-left transition-colors duration-200">
                 <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200 font-display flex items-center gap-1.5">
                   <span className="text-red-600 dark:text-red-400">ତା {toOdiaDigits(new Date(selectedDateStr).getDate())} {odiaMonthsNames[new Date(selectedDateStr).getMonth()]} :</span>
@@ -376,7 +431,7 @@ export default function App() {
                 selectedDateStr={selectedDateStr}
               />
 
-              {/* Big Action Buttons from Screenshot 1 */}
+              {/* Big Action Buttons */}
               <div className="grid grid-cols-1 gap-3">
                 <button
                   onClick={() => setPanchangSubTab("tithi")}
@@ -400,7 +455,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Display either Panchang Tabs (Screenshot 2) or Rashifal view (Screenshot 3) */}
+              {/* Display either Panchang Tabs or Rashifal view from database */}
               <AnimatePresence mode="wait">
                 {panchangSubTab === "tithi" ? (
                   <div key="tithi-tab">
@@ -408,7 +463,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div key="rashifal-tab">
-                    <RashifalView />
+                    <RashifalView rashifals={dbRashifals} />
                   </div>
                 )}
               </AnimatePresence>
@@ -423,7 +478,7 @@ export default function App() {
               exit={{ opacity: 0, x: 10 }}
               transition={{ duration: 0.18 }}
             >
-              <FestivalDetails />
+              <FestivalDetails festivals={dbFestivals} />
             </motion.div>
           )}
 

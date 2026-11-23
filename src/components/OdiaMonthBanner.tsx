@@ -1,16 +1,18 @@
 import React from "react";
-import { getOdiaMonthMapping } from "../data/odiaMonthMapping";
+import { getOdiaMonthMapping, OdiaMonthMapping } from "../data/odiaMonthMapping";
 
 interface OdiaMonthBannerProps {
   currentMonthIndex: number; // 0-11
   currentYear?: number;
+  monthMapping?: OdiaMonthMapping;
   onSelectMonth?: (monthIndex: number) => void;
 }
 
 export default function OdiaMonthBanner({
   currentMonthIndex,
+  monthMapping,
 }: OdiaMonthBannerProps) {
-  const activeMapping = getOdiaMonthMapping(currentMonthIndex);
+  const activeMapping = monthMapping || getOdiaMonthMapping(currentMonthIndex);
 
   return (
     <div className="mb-4">
